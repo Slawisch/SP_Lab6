@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Serialization;
 
 namespace SP_Lab6
 {
@@ -16,10 +18,17 @@ namespace SP_Lab6
         public List<Factory> Factories = new List<Factory>();
         private BindingSource binding;
         private IEnumerable<Factory> data;
+        XmlSerializer formatter = new XmlSerializer(typeof(List<Factory>));
         public Form1()
         {
             InitializeComponent();
-            Factories.Add(new Factory(1500, 5));
+            
+            using (FileStream fs = new FileStream("students.xml", FileMode.OpenOrCreate))
+            {
+                Factories = (List<Factory>)formatter.Deserialize(fs);
+            }
+            
+            //Factories.Add(new Factory(1500, 5));
             
             binding = new BindingSource();
             data = from fc in Factories select fc;
@@ -34,7 +43,10 @@ namespace SP_Lab6
 
         private void button2_Click(object sender, EventArgs e) // Stop and Save
         {
-            throw new System.NotImplementedException();
+            using (FileStream fs = new FileStream("students.xml", FileMode.OpenOrCreate))
+            {
+                formatter.Serialize(fs, Factories);
+            }
         }
 
         private void button3_Click(object sender, EventArgs e) // Buy materials
